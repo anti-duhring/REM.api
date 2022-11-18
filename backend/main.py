@@ -2,6 +2,7 @@ from flask import Flask, make_response, jsonify, request
 from controllers.user import UserController
 
 app = Flask('RemAPI')
+app.config['JSON_SORT_KEYS'] = False
 
 @app.route('/users', methods=['GET'])
 def show():
@@ -12,14 +13,12 @@ def show():
             result = UserController().show(user_id=user_id)
         else:
             result = UserController().index()
-        return make_response(
-            result
-        )
+        return result
     except Exception as e:
         print(e)
         return make_response({
             'message': 'Erro interno'
-        })
+        }, 500)
 
 @app.route('/users', methods=['POST'])
 def create():
@@ -27,14 +26,12 @@ def create():
 
     try:
         result = UserController().create(data=request_data)
-        return make_response(
-            result
-        )
+        return result
     except Exception as e:
         print(e)
         return make_response({
             'message': 'Erro interno'
-        })    
+        }, 500)    
 
 @app.route('/users', methods=['DELETE'])
 def delete():
@@ -42,14 +39,12 @@ def delete():
 
     try:
         result = UserController().delete(user_id=user_id)
-        return make_response(
-            result
-        )
+        return result
     except Exception as e:
         print(e)
         return make_response({
             'message': 'Erro interno'
-        })
+        }, 500)
 
 @app.route('/users', methods=['PUT'])
 def update():
@@ -58,13 +53,12 @@ def update():
 
     try:
         result = UserController().update(user_id=user_id, data=request_data)
-        return make_response(
-            result
-        )
+        return result
     except Exception as e:
         print(e)
         return make_response({
             'message': 'Erro interno'
-        }) 
+        }, 500) 
 
+# app.run(debug=True)
 app.run()

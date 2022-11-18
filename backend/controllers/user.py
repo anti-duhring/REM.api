@@ -1,6 +1,7 @@
 from db import ConnectDB
 import json
 import collections
+from flask import make_response
 
 class UserController:
     def __init__(self):
@@ -20,16 +21,16 @@ class UserController:
         try:
             ConnectDB().exec_DML(sql=command)
             res['user'] = self.show_by_token(token=token)
+
+            return make_response(res, 201)
         except Exception as e:
             print(e)
             res['message'] = 'Erro ao criar usuário usuário'
-
-        return res
+            return make_response(res, 401)
     
     def index(self):
         ConnectDB().connect()
-        users_list = {}
-        users_list["users"] = []
+        res = {}
 
         command = f'''SELECT 
             id, 
@@ -39,21 +40,27 @@ class UserController:
             access 
         FROM Users'''
 
-        result = ConnectDB().exec_DQL(sql=command)
-        for row in result:
-            d = collections.OrderedDict()
-            d["id"] = row[0]
-            d["token"] = row[1]
-            d["name"] = row[2]
-            d["admin"] = row[3]
-            d["access"] = row[4]
-            users_list["users"].append(d)
-
-        return users_list
+        try:
+            result = ConnectDB().exec_DQL(sql=command)
+            res["users"] = []
+            for row in result:
+                d = collections.OrderedDict()
+                d["id"] = row[0]
+                d["token"] = row[1]
+                d["name"] = row[2]
+                d["admin"] = row[3]
+                d["access"] = row[4]
+                res["users"].append(d)
+            
+            return make_response(res, 200)
+        except Exception as e:
+            print(e)
+            res['message'] = 'Erro ao retornar usuários'
+            return make_response(res, 400)
         
     def show(self, user_id):
         ConnectDB().connect()
-        user = {}
+        res = {}
         command = f'''SELECT 
             id, 
             token, 
@@ -62,20 +69,25 @@ class UserController:
             access 
         FROM Users WHERE id = {user_id}'''
 
-
-        result = ConnectDB().exec_DQL(sql=command)
-        for row in result:
-            user["id"] = row[0]
-            user["token"] = row[1]
-            user["name"] = row[2]
-            user["admin"] = row[3]
-            user["access"] = row[4]
-
-        return user
+        try:
+            result = ConnectDB().exec_DQL(sql=command)
+            res['user'] = {}
+            for row in result:
+                res['user']["id"] = row[0]
+                res['user']["token"] = row[1]
+                res['user']["name"] = row[2]
+                res['user']["admin"] = row[3]
+                res['user']["access"] = row[4]
+            
+            return make_response(res, 200)
+        except Exception as e:
+            print(e)
+            res['message'] = 'Erro ao retornar usuários'
+            return make_response(res, 400)
 
     def show_by_token(self, token):
         ConnectDB().connect()
-        user = {}
+        res = {}
         command = f'''SELECT 
             id, 
             token, 
@@ -84,16 +96,21 @@ class UserController:
             access 
         FROM Users WHERE token = {token}'''
 
-
-        result = ConnectDB().exec_DQL(sql=command)
-        for row in result:
-            user["id"] = row[0]
-            user["token"] = row[1]
-            user["name"] = row[2]
-            user["admin"] = row[3]
-            user["access"] = row[4]
-
-        return user     
+        try:
+            result = ConnectDB().exec_DQL(sql=command)
+            res['user'] = {}
+            for row in result:
+                res['user']["id"] = row[0]
+                res['user']["token"] = row[1]
+                res['user']["name"] = row[2]
+                res['user']["admin"] = row[3]
+                res['user']["access"] = row[4]
+            
+            return make_response(res, 200)
+        except Exception as e:
+            print(e)
+            res['message'] = 'Erro ao retornar usuários'
+            return make_response(res, 400)     
 
     def update(self, user_id, data):
         ConnectDB().connect()
@@ -107,11 +124,12 @@ class UserController:
         try:
             ConnectDB().exec_DML(sql=command)
             res['user'] = self.show(user_id=user_id)
+
+            return make_response(res, 201)
         except Exception as e:
             print(e)
             res['message'] = 'Erro ao criar usuário usuário'
-
-        return res
+            return make_response(res, 400)
     
     def delete(self, user_id):
         ConnectDB().connect()
@@ -122,9 +140,11 @@ class UserController:
         
         try:
             ConnectDB().exec_DML(sql=command)
+
+            return make_response(res, 200)
         except Exception as e:
             print(e)
             res['message'] = 'Erro ao deletar usuário'
 
-        return res
+            return make_response(res, 400)
         
