@@ -1,18 +1,8 @@
-from flask import Flask, make_response, jsonify, request
+from flask import make_response, request
+
+from __main__ import app
 from controllers.user import UserController
-from waitress import serve
-
-app = Flask('RemAPI')
-app.config['JSON_SORT_KEYS'] = False
-
-
-@app.after_request
-def apply_caching(response):
-  response.headers.add('Access-Control-Allow-Origin', '*')
-  response.headers.add('Access-Control-Allow-Methods',
-                       'GET,POST,OPTIONS,DELETE,PUT')
-  response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-  return response
+from views import helper
 
 
 @app.route('/users', methods=['GET'])
@@ -32,6 +22,7 @@ def show():
 
 
 @app.route('/users', methods=['POST'])
+@helper.admin_required
 def create():
   request_data = request.get_json()
 
@@ -44,6 +35,7 @@ def create():
 
 
 @app.route('/users', methods=['DELETE'])
+@helper.admin_required
 def delete():
   user_id = request.args.get('id')
 
@@ -56,6 +48,7 @@ def delete():
 
 
 @app.route('/users', methods=['PUT'])
+@helper.admin_required
 def update():
   user_id = request.args.get('id')
   request_data = request.get_json()
@@ -68,5 +61,6 @@ def update():
     return make_response({'message': 'Erro interno'}, 500)
 
 
-# app.run(debug=True)
-serve(app, host="0.0.0.0", port=8080)
+@app.route('/users/auth', methods=['POST'])
+def authenticate():
+  return make_response(helper.admin())

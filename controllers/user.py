@@ -1,7 +1,9 @@
-from db import ConnectDB
-import json
 import collections
+import json
+
 from flask import make_response
+
+from db import ConnectDB
 
 
 class UserController:
