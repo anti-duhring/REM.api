@@ -71,4 +71,4 @@ def admin_required(f):
       return jsonify({'message': 'Token inválida ou expirada'}), 401
     return f(*args, **kwargs)
 
-  return decorated
+  return decorated 
