@@ -1,8 +1,8 @@
 import collections
 import json
-
+import random
+import string
 from flask import make_response
-
 from db import ConnectDB
 
 
@@ -14,8 +14,7 @@ class UserController:
   def create(self, data, current_user=None):
     ConnectDB().connect()
     res = {}
-
-    token = data['token']
+    token = self.generate_token()
     admin = data['admin']
     access = data['access']
     name = data['name']
@@ -32,7 +31,7 @@ class UserController:
       res['message'] = 'Erro ao criar usuário usuário'
       return make_response(res, 401)
 
-  def index(self):
+  def index(self, format = 'response'):
     ConnectDB().connect()
     res = {}
 
@@ -56,7 +55,10 @@ class UserController:
         d["access"] = row[4]
         res["users"].append(d)
 
-      return make_response(res, 200)
+      if format == 'json':
+        return res['users']
+      else:
+        return make_response(res, 200)
     except Exception as e:
       print(e)
       res['message'] = 'Erro ao retornar usuários'
@@ -155,3 +157,19 @@ class UserController:
       res['message'] = 'Erro ao deletar usuário'
 
       return make_response(res, 400)
+  
+  def generate_token(self):
+    token = None
+    users = self.index(format='json')
+
+    def random_carac():
+      carac = string.hexdigits
+      result_str = ''.join(random.choice(carac) for i in range(10))
+      for user in users:
+        if result_str == user.get('token'):
+          random_carac()
+        else:
+          return result_str
+    
+    token = random_carac()
+    return token
