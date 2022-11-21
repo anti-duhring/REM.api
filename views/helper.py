@@ -56,6 +56,7 @@ def admin_required(f):
 
   @wraps(f)
   def decorated(*args, **kwargs):
+    jwt = JWT()
     token = request.headers.get('token')
     if not token:
       return jsonify({'message': 'Token ausente'}), 400
@@ -67,7 +68,7 @@ def admin_required(f):
                                                     format='json')
     except Exception as e:
       print(e)
-      return jsonify({'message': 'Tokendf inválida ou expirada'}), 401
-    return f(current_user, *args, **kwargs)
+      return jsonify({'message': 'Token inválida ou expirada'}), 401
+    return f(*args, **kwargs)
 
   return decorated
