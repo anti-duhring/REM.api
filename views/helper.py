@@ -35,6 +35,8 @@ def admin():
       return jsonify({
         'message':
         'Sucesso ao validar',
+        'user':
+        user,
         'token':
         token,
         'exp':
@@ -66,6 +68,6 @@ def admin_required(f):
     except Exception as e:
       print(e)
       return jsonify({'message': 'Tokendf inválida ou expirada'}), 401
-    return f(*args, **kwargs)
+    return f(current_user, *args, **kwargs)
 
   return decorated

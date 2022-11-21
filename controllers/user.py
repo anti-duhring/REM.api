@@ -11,7 +11,7 @@ class UserController:
   def __init__(self):
     print('Initialize user controller')
 
-  def create(self, data):
+  def create(self, data, current_user=None):
     ConnectDB().connect()
     res = {}
 
@@ -122,7 +122,7 @@ class UserController:
       res['message'] = 'Erro ao retornar usuários'
       return make_response(res, 400)
 
-  def update(self, user_id, data):
+  def update(self, user_id, data, current_user=None):
     ConnectDB().connect()
     res = {}
     admin = data['admin']
@@ -141,7 +141,7 @@ class UserController:
       res['message'] = 'Erro ao criar usuário usuário'
       return make_response(res, 400)
 
-  def delete(self, user_id):
+  def delete(self, user_id, current_user=None):
     ConnectDB().connect()
     res = {"message": f'Usuário {user_id} deletado com sucesso'}
     command = f'DELETE FROM Users WHERE id = {user_id}'
