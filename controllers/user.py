@@ -4,6 +4,7 @@ import random
 import string
 from flask import make_response
 from db import ConnectDB
+from datetime import datetime
 
 
 class UserController:
@@ -158,6 +159,28 @@ class UserController:
 
       return make_response(res, 400)
   
+  def update_last_login(self, user_id):
+    ConnectDB().connect()
+    res = {
+      'message': None,
+      'error': False
+    }
+    date_now = f'{datetime.now().year}-{datetime.now().month}-{datetime.now().day}'
+
+    command = f'UPDATE Users SET lastLogin = "{date_now}" WHERE id = {user_id}'
+
+    try:
+      ConnectDB().exec_DML(sql=command)
+      res['message'] = f'Último login em {date_now}'
+
+      return res
+    except Exception as e:
+      print(e)
+      res['message'] = 'Erro ao atualizar data do último login do usuário'
+      res['error'] =  True
+
+      return res 
+
   def generate_token(self):
     token = None
     users = self.index(format='json')

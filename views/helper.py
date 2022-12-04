@@ -25,6 +25,13 @@ def admin():
   if not user:
     return jsonify({'message': 'Usuário não existe', 'user': {}}), 404
   else:
+    last_login = UserController().update_last_login(user_id=user.get('id'))
+
+    if last_login['error']:
+      return jsonify({
+        'message': last_login['message'],
+      }), 500
+
     token = jwt.encode(
       {
         'id': user.get('id'),
@@ -46,10 +53,6 @@ def admin():
       return jsonify({
         'message': 'Não autorizado',
       }), 403
-
-  return jsonify({
-    'message': 'Erro interno',
-  }), 500
 
 
 def admin_required(f):
