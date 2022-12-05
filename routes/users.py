@@ -63,4 +63,4 @@ def update():
 
 @app.route('/users/auth', methods=['POST'])
 def authenticate():
-  return make_response(helper.admin())
+  return make_response(helper.token())

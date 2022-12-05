@@ -17,7 +17,7 @@ def apply_caching(response):
   return response
 
 
-from routes import users
+from routes import users, bots
 
 #app.run(debug=True,port=8080)
 serve(app, host="0.0.0.0", port=8080)

@@ -11,7 +11,7 @@ from controllers.user import UserController
 from __main__ import app
 
 
-def admin():
+def token():
   jwt = JWT()
   auth = request.headers.get('token')
 
@@ -38,22 +38,44 @@ def admin():
         'token': user.get('token'),
         'exp': get_int_from_datetime(datetime.now() + timedelta(hours=24))
       }, jwk_from_dict(app.config['SECRET_KEY']))
-    if user.get('admin'):
-      return jsonify({
-        'message':
-        'Sucesso ao validar',
-        'user':
-        user,
-        'token':
-        token,
-        'exp':
-        get_int_from_datetime(datetime.now() + timedelta(hours=24))
-      }), 200
-    else:
-      return jsonify({
-        'message': 'Não autorizado',
-      }), 403
+    return jsonify({
+      'message':
+      'Sucesso ao validar',
+      'user':
+      user,
+      'token':
+      token,
+      'exp':
+      get_int_from_datetime(datetime.now() + timedelta(hours=24))
+    }), 200
 
+def access_required(f):
+
+  @wraps(f)
+  def decorated(*args, **kwargs):
+    jwt = JWT()
+    token = request.headers.get('token')
+    if not token:
+      return jsonify({'message': 'Token ausente'}), 400
+    try:
+      data = jwt.decode(
+        token,
+        jwk_from_dict(app.config['SECRET_KEY']),
+        algorithms=['HS256']
+      )
+      current_user = UserController().show_by_token(
+          token=data.get('token'),
+          format='json'
+        )
+      if current_user.get('access') is False or current_user.get('access') == 0:
+        return jsonify({'message': 'Acesso do usuário está bloqueado'}), 403
+  
+    except Exception as e:
+      print(e)
+      return jsonify({'message': 'Token inválida ou expirada'}), 401
+    return f(user=current_user, *args, **kwargs)
+
+  return decorated   
 
 def admin_required(f):
 
@@ -67,8 +89,13 @@ def admin_required(f):
       data = jwt.decode(token,
                         jwk_from_dict(app.config['SECRET_KEY']),
                         algorithms=['HS256'])
-      current_user = UserController().show_by_token(token=data.get('token'),
-                                                    format='json')
+      current_user = UserController().show_by_token(
+        token=data.get('token'),
+        format='json'
+      )
+      if current_user.get('admin') is False or current_user.get('admin') == 0:
+        return jsonify({'message': 'Não autorizado'}), 403
+
     except Exception as e:
       print(e)
       return jsonify({'message': 'Token inválida ou expirada'}), 401
