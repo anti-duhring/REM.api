@@ -133,7 +133,8 @@ class BotController:
     try:
       ConnectDB().exec_DML(sql=command)
 
-      res['bot'] = self.show(bot_id=bot_id)
+      bot_updated = self.show(bot_id=bot_id)
+      res['bot'] = bot_updated['bot']
 
       return res
     except Exception as e:
