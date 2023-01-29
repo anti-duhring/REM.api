@@ -8,8 +8,9 @@ from views import helper
 @app.route('/bots/download', methods=['POST'])
 @helper.access_required
 def download_bots(user):
+  request_data = request.get_json()
   try:
-    response = BotController().download()
+    response = BotController().download(request_data=request_data)
     return make_response(response, 200)
   except Exception as e:
     return make_response({'message': 'Erro interno'}, 500)

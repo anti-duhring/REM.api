@@ -9,8 +9,10 @@ class BotController:
   def __init__(self):
     print('Initialize bot controller')
 
-  def download(self, link='test.py'):
+  def download(self, request_data):
     res = {'content': None, 'message': None, 'error': False}
+
+    link = request_data['link']
     response = requests.get(f'https://www.reminfotech.net.br/bots/{link}',
                             allow_redirects=True,
                             auth=HTTPBasicAuth('reminfotech', 'a1b2c3d4e5'))
